@@ -1,0 +1,119 @@
+From 8dc162be67e081ed8b388703f2cb8f99e837e890 Mon Sep 17 00:00:00 2001
+From: Puri <tkdqja9812@gmail.com>
+Date: Sat, 2 Aug 2014 10:38:01 +0900
+Subject: [PATCH] P990 patch
+
+---
+ configs/bootanimation.mk    |  2 +-
+ configs/telephony.mk        |  1 +
+ products/AndroidProducts.mk |  3 +++
+ products/pa_p990.mk         | 48 +++++++++++++++++++++++++++++++++++++++++++++
+ vendorsetup.sh              |  1 +
+ 5 files changed, 54 insertions(+), 1 deletion(-)
+ create mode 100644 products/pa_p990.mk
+
+diff --git a/configs/bootanimation.mk b/configs/bootanimation.mk
+index fcb5a81..1e8e576 100644
+--- a/configs/bootanimation.mk
++++ b/configs/bootanimation.mk
+@@ -29,7 +29,7 @@ ifneq ($(filter pa_amami pa_edison pa_maserasti pa_spyder pa_targa pa_umts_spyde
+ endif
+ 
+ # PA HDPI Devices
+-ifneq ($(filter pa_galaxysmtd pa_i9082 pa_i9100 pa_i9100g pa_p3100 pa_p3110 pa_serrano3gxx pa_serranoltexx pa_ville,$(TARGET_PRODUCT)),)
++ifneq ($(filter pa_galaxysmtd pa_i9082 pa_i9100 pa_i9100g pa_p3100 pa_p990 pa_p3110 pa_serrano3gxx pa_serranoltexx pa_ville,$(TARGET_PRODUCT)),)
+     PRODUCT_COPY_FILES += \
+         vendor/pa/prebuilt/bootanimation/800x480.zip:system/media/bootanimation.zip
+ endif
+diff --git a/configs/telephony.mk b/configs/telephony.mk
+index d4b3fe2..30149c3 100644
+--- a/configs/telephony.mk
++++ b/configs/telephony.mk
+@@ -20,3 +20,4 @@ PRODUCT_PACKAGES += \
+ # Mms depends on SoundRecorder for recorded audio messages
+ PRODUCT_PACKAGES += \
+     SoundRecorder
++
+diff --git a/products/AndroidProducts.mk b/products/AndroidProducts.mk
+index f9cdcc3..1e8c441 100644
+--- a/products/AndroidProducts.mk
++++ b/products/AndroidProducts.mk
+@@ -186,6 +186,9 @@ endif
+ ifeq (pa_p880,$(TARGET_PRODUCT))
+     PRODUCT_MAKEFILES += $(LOCAL_DIR)/pa_p880.mk
+ endif
++ifeq (pa_p990,$(TARGET_PRODUCT))
++    PRODUCT_MAKEFILES += $(LOCAL_DIR)/pa_p990.mk
++endif
+ ifeq (pa_serrano3gxx,$(TARGET_PRODUCT))
+     PRODUCT_MAKEFILES += $(LOCAL_DIR)/pa_serrano3gxx.mk
+ endif
+diff --git a/products/pa_p990.mk b/products/pa_p990.mk
+new file mode 100644
+index 0000000..33b1f8b
+--- /dev/null
++++ b/products/pa_p990.mk
+@@ -0,0 +1,48 @@
++# Copyright (C) 2013 ParanoidAndroid Project
++#
++# Licensed under the Apache License, Version 2.0 (the "License");
++# you may not use this file except in compliance with the License.
++# You may obtain a copy of the License at
++#
++#      http://www.apache.org/licenses/LICENSE-2.0
++#
++# Unless required by applicable law or agreed to in writing, software
++# distributed under the License is distributed on an "AS IS" BASIS,
++# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++# See the License for the specific language governing permissions and
++# limitations under the License.
++
++# Check for target product
++
++ifeq (pa_p990,$(TARGET_PRODUCT))
++
++# Define PA bootanimation size
++PARANOID_BOOTANIMATION_NAME := HDPI
++
++# OVERLAY_TARGET adds overlay asset source
++OVERLAY_TARGET := pa_hdpi
++
++PREFS_FROM_SOURCE ?= false
++
++# Inherit telephony common stuff
++$(call inherit-product, vendor/pa/configs/telephony.mk)
++
++# Include AOSPA common configuration
++include vendor/pa/main.mk
++
++# Inherit device configuration
++$(call inherit-product, device/lge/p990/p990.mk)
++
++# Override AOSP build properties
++PRODUCT_NAME := pa_p990
++PRODUCT_DEVICE := p990
++PRODUCT_BRAND := lge
++PRODUCT_MANUFACTURER := lge
++PRODUCT_MODEL := LG-P990
++PRODUCT_BUILD_PROP_OVERRIDES += \
++    PRODUCT_NAME=star_open_eu \
++    TARGET_DEVICE=p990 \
++    BUILD_FINGERPRINT="lge/star_open_eu/star:4.0.4/IMM76L/LG-P990-P99030a.1211302332:user/release-keys" \
++    PRIVATE_BUILD_DESC="star_open_eu-user 4.0.4 IMM76L LG-P990-P99030a.1211302332 release-keys"
++
++endif
+diff --git a/vendorsetup.sh b/vendorsetup.sh
+index 4a5f615..8a98213 100644
+--- a/vendorsetup.sh
++++ b/vendorsetup.sh
+@@ -56,6 +56,7 @@ add_lunch_combo pa_odin-userdebug
+ add_lunch_combo pa_p3100-userdebug
+ add_lunch_combo pa_p3110-userdebug
+ add_lunch_combo pa_p880-userdebug
++add_lunch_combo pa_p990-userdebug
+ add_lunch_combo pa_serrano3gxx-userdebug
+ add_lunch_combo pa_serranoltexx-userdebug
+ add_lunch_combo pa_sirius-userdebug
+-- 
+1.9.1
+
