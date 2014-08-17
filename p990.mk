@@ -185,6 +185,18 @@ PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/kernel/kowalski/iwconfig:system/xbin/iwconfig \
     $(LOCAL_PATH)/kernel/kowalski/iwlist:system/xbin/iwlist
 
+# Copy Camera
+PRODUCT_COPY_FILES += \
+    $(LOCAL_PATH)/apps/f50.apk:system/app/f50.apk
+
+# Copy PerformanceControl
+PRODUCT_COPY_FILES += \
+    $(LOCAL_PATH)/apps/PerformanceControl-2.2.4.apk:system/app/PerformanceControl-2.2.4.apk
+
+# enable zram regardless of kernel support
+PRODUCT_COPY_FILES += \
+     $(LOCAL_PATH)/init.d/03_zram_tonyp:system/etc/init.d/03_zram_tonyp
+
 PRODUCT_PACKAGES += \
     lgcpversion
 

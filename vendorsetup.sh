@@ -30,6 +30,15 @@ else
        echo "     [FAIL]"
 fi
 
+echo -n "Apply patch 0001-free-RAM-lagfix-persist.sys.tonyp_mem_mgmt.patch"
+(cd frameworks/base; git am ../../device/lge/p990/patches/0001-free-RAM-lagfix-persist.sys.tonyp_mem_mgmt.patch) > /dev/null 2>&1
+if [ $? == 0 ]; then
+       echo "     [DONE]"
+else
+       (cd frameworks/base; git am --abort)
+       echo "     [FAIL]"
+fi
+
 echo "Apply patch to frameworks/native"
 echo -n "Apply patch 0001-Fix-layer-dump-for-tegra2.patch"
 (cd frameworks/native; git am ../../device/lge/p990/patches/0001-Fix-layer-dump-for-tegra2.patch) > /dev/null 2>&1
@@ -87,3 +96,14 @@ else
 	(cd hardware/libhardware; git am --abort)
 	echo "     [FAIL]"
 fi
+
+echo "Apply patch to vendor/pa"
+echo -n "Apply patch 0001-P990-patch.patch"
+(cd vendor/pa; git am ../../device/lge/p990/patches/0001-P990-patch.patch) > /dev/null 2>&1
+if [ $? == 0 ]; then
+	echo "     [DONE]"
+else
+	(cd hardware/libhardware; git am --abort)
+	echo "     [FAIL]"
+fi
+
