@@ -39,6 +39,24 @@ else
        echo "     [FAIL]"
 fi
 
+echo -n "0001-storage-allow-swapping-primary-storage-for-apps.patch"
+(cd frameworks/base; git am ../../device/lge/p990/patches/00001-storage-allow-swapping-primary-storage-for-apps.patch) > /dev/null 2>&1
+if [ $? == 0 ]; then
+       echo "     [DONE]"
+else
+       (cd frameworks/base; git am --abort)
+       echo "     [FAIL]"
+fi
+
+echo -n "0002-Option-to-enforce-statusbar-transparency.patch"
+(cd frameworks/base; git am ../../device/lge/p990/patches/0002-Option-to-enforce-statusbar-transparency.patch) > /dev/null 2>&1
+if [ $? == 0 ]; then
+       echo "     [DONE]"
+else
+       (cd frameworks/base; git am --abort)
+       echo "     [FAIL]"
+fi
+
 echo "Apply patch to frameworks/native"
 echo -n "Apply patch 0001-Fix-layer-dump-for-tegra2.patch"
 (cd frameworks/native; git am ../../device/lge/p990/patches/0001-Fix-layer-dump-for-tegra2.patch) > /dev/null 2>&1
@@ -68,6 +86,53 @@ else
 	echo "     [FAIL]"
 fi
 
+echo "Apply patch to packages/apps/Settings"
+echo -n "Apply patch 0001-add-persist.sys.tonyp_mem_mgmt-settings.patch"
+(cd packages/apps/Settings; git am ../../device/lge/p990/patches/0001-add-persist.sys.tonyp_mem_mgmt-settings.patch) > /dev/null 2>&1
+if [ $? == 0 ]; then
+	echo "     [DONE]"
+else
+	(cd packages/apps/Settings; git am --abort)
+	echo "     [FAIL]"
+fi
+
+echo "Apply patch to packages/apps/Settings"
+echo -n "Apply patch 0001-add-persist.sys.tonyp_mem_mgmt-settings.patch"
+(cd packages/apps/Settings; git am ../../device/lge/p990/patches/0001-add-persist.sys.tonyp_mem_mgmt-settings.patch) > /dev/null 2>&1
+if [ $? == 0 ]; then
+	echo "     [DONE]"
+else
+	(cd packages/apps/Settings; git am --abort)
+	echo "     [FAIL]"
+fi
+
+echo -n "Apply patch 0002-Advanced-storage-vold-swap-storage-paths.patch"
+(cd packages/apps/Settings; git am ../../device/lge/p990/patches/0002-Advanced-storage-vold-swap-storage-paths.patch) > /dev/null 2>&1
+if [ $? == 0 ]; then
+	echo "     [DONE]"
+else
+	(cd packages/apps/Settings; git am --abort)
+	echo "     [FAIL]"
+fi
+
+echo -n "Apply patch 0003-Advanced-storage-swap-primary-storage-for-apps.patch"
+(cd packages/apps/Settings; git am ../../device/lge/p990/patches/0003-Advanced-storage-swap-primary-storage-for-apps.patch) > /dev/null 2>&1
+if [ $? == 0 ]; then
+	echo "     [DONE]"
+else
+	(cd packages/apps/Settings; git am --abort)
+	echo "     [FAIL]"
+fi
+
+echo -n "Apply patch 0004-Option-to-enforce-status-navigation-bar-transparency.patch"
+(cd packages/apps/Settings; git am ../../device/lge/p990/patches/0004-Option-to-enforce-status-navigation-bar-transparency.patch) > /dev/null 2>&1
+if [ $? == 0 ]; then
+	echo "     [DONE]"
+else
+	(cd packages/apps/Settings; git am --abort)
+	echo "     [FAIL]"
+fi
+
 echo "Apply patch to external/skia"
 echo -n "Apply patch 0001-external-skia-patch.patch"
 (cd external/skia; git am ../../device/lge/p990/patches/0001-external-skia-patch.patch) > /dev/null 2>&1
@@ -77,6 +142,7 @@ else
 	(cd external/skia; git am --abort)
 	echo "     [FAIL]"
 fi
+
 echo "Apply patch to bionic"
 echo -n "Apply patch 0003-Add-tegra2-to-bionic.patch"
 (cd bionic; git am ../device/lge/p990/patches/0003-Add-tegra2-to-bionic.patch) > /dev/null 2>&1

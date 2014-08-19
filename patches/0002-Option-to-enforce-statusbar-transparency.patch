@@ -1,0 +1,122 @@
+From bb029fe0333efca7afd8703360d86365d4d69971 Mon Sep 17 00:00:00 2001
+From: tonyp <tonyptonyp@gmail.com>
+Date: Sun, 11 May 2014 08:46:53 -0500
+Subject: [PATCH 2/2] Option to enforce statusbar transparency
+
+Courtesy of @htto
+https://gist.github.com/htto/9849712
+
+Conflicts:
+	packages/SystemUI/src/com/android/systemui/statusbar/phone/BarTransitions.java
+
+Conflicts:
+	packages/SystemUI/src/com/android/systemui/statusbar/phone/PhoneStatusBar.java
+	packages/SystemUI/src/com/android/systemui/statusbar/phone/PhoneStatusBarView.java
+---
+ .../android/systemui/statusbar/phone/BarTransitions.java  |  3 ++-
+ .../android/systemui/statusbar/phone/PhoneStatusBar.java  | 15 ++++++++++++---
+ .../systemui/statusbar/phone/PhoneStatusBarView.java      |  6 +++---
+ 3 files changed, 17 insertions(+), 7 deletions(-)
+
+diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/phone/BarTransitions.java b/packages/SystemUI/src/com/android/systemui/statusbar/phone/BarTransitions.java
+index cfefdf3..1e6ad57 100644
+--- a/packages/SystemUI/src/com/android/systemui/statusbar/phone/BarTransitions.java
++++ b/packages/SystemUI/src/com/android/systemui/statusbar/phone/BarTransitions.java
+@@ -37,7 +37,8 @@ public class BarTransitions {
+     private static final boolean DEBUG = false;
+     private static final boolean DEBUG_COLORS = false;
+ 
+-    public static final boolean HIGH_END = ActivityManager.isHighEndGfx();
++    public static final boolean HIGH_END = ActivityManager.isHighEndGfx()
++            || PhoneStatusBar.FORCE_TRANSLUCENT;
+ 
+     public static final int MODE_OPAQUE = 0;
+     public static final int MODE_SEMI_TRANSPARENT = 1;
+diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/phone/PhoneStatusBar.java b/packages/SystemUI/src/com/android/systemui/statusbar/phone/PhoneStatusBar.java
+index a686a6f..58a09c6 100644
+--- a/packages/SystemUI/src/com/android/systemui/statusbar/phone/PhoneStatusBar.java
++++ b/packages/SystemUI/src/com/android/systemui/statusbar/phone/PhoneStatusBar.java
+@@ -63,6 +63,7 @@ import android.os.Message;
+ import android.os.PowerManager;
+ import android.os.RemoteException;
+ import android.os.SystemClock;
++import android.os.SystemProperties;
+ import android.os.UserHandle;
+ import android.provider.AlarmClock;
+ import android.provider.Settings;
+@@ -160,6 +161,9 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
+     private static final int NOTIFICATION_PRIORITY_MULTIPLIER = 10; // see NotificationManagerService
+     private static final int HIDE_ICONS_BELOW_SCORE = Notification.PRIORITY_LOW * NOTIFICATION_PRIORITY_MULTIPLIER;
+ 
++    protected static final boolean FORCE_TRANSLUCENT =
++            SystemProperties.getBoolean("persist.sys.force_transbar", false);
++
+     private static final int STATUS_OR_NAV_TRANSIENT =
+             View.STATUS_BAR_TRANSIENT | View.NAVIGATION_BAR_TRANSIENT;
+     private static final long AUTOHIDE_TIMEOUT_MS = 3000;
+@@ -564,7 +568,7 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
+                     }
+                 });
+ 
+-        if (!ActivityManager.isHighEndGfx()) {
++        if (!ActivityManager.isHighEndGfx() && !PhoneStatusBar.FORCE_TRANSLUCENT) {
+             mStatusBarWindow.setBackground(null);
+             mNotificationPanel.setBackground(new FastColorDrawable(context.getResources().getColor(
+                     R.color.notification_panel_solid_background)));
+@@ -832,7 +836,7 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
+                 }
+ 
+                 if (mSettingsPanel != null) {
+-                    if (!ActivityManager.isHighEndGfx()) {
++                    if (!ActivityManager.isHighEndGfx() && !PhoneStatusBar.FORCE_TRANSLUCENT) {
+                         mSettingsPanel.setBackground(new FastColorDrawable(context.getResources().getColor(
+                                 R.color.notification_panel_solid_background)));
+                     }
+@@ -968,7 +972,7 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
+                 | WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM
+                 | WindowManager.LayoutParams.FLAG_SPLIT_TOUCH,
+                 (opaque ? PixelFormat.OPAQUE : PixelFormat.TRANSLUCENT));
+-        if (ActivityManager.isHighEndGfx()) {
++        if (ActivityManager.isHighEndGfx() || PhoneStatusBar.FORCE_TRANSLUCENT) {
+             lp.flags |= WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED;
+         }
+         lp.gravity = Gravity.BOTTOM | Gravity.START;
+@@ -1152,6 +1156,11 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
+                     | WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
+                 PixelFormat.TRANSLUCENT);
+ 
++        // this will allow the navbar to run in an overlay on devices that support this
++        if (ActivityManager.isHighEndGfx() || PhoneStatusBar.FORCE_TRANSLUCENT) {
++            lp.flags |= WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED;
++        }
++
+         lp.setTitle("NavigationBar");
+         lp.windowAnimations = 0;
+         return lp;
+diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/phone/PhoneStatusBarView.java b/packages/SystemUI/src/com/android/systemui/statusbar/phone/PhoneStatusBarView.java
+index 3ffd2b0..c2372c9 100644
+--- a/packages/SystemUI/src/com/android/systemui/statusbar/phone/PhoneStatusBarView.java
++++ b/packages/SystemUI/src/com/android/systemui/statusbar/phone/PhoneStatusBarView.java
+@@ -203,7 +203,7 @@ public class PhoneStatusBarView extends PanelBar {
+         mBar.makeExpandedInvisibleSoon();
+         mFadingPanel = null;
+         mLastFullyOpenedPanel = null;
+-        if (mScrimColor != 0 && ActivityManager.isHighEndGfx()) {
++        if (mScrimColor != 0 && (ActivityManager.isHighEndGfx() || PhoneStatusBar.FORCE_TRANSLUCENT)) {
+             mBar.mStatusBarWindow.setBackgroundColor(0);
+         }
+     }
+@@ -251,8 +251,8 @@ public class PhoneStatusBarView extends PanelBar {
+             Log.v(TAG, "panelExpansionChanged: f=" + frac);
+         }
+ 
+-        if (panel == mFadingPanel && mScrimColor != 0 && ActivityManager.isHighEndGfx()) {
+-            if (mShouldFade) {
++        if (panel == mFadingPanel && mScrimColor != 0 && ActivityManager.isHighEndGfx() || PhoneStatusBar.FORCE_TRANSLUCENT)) {
++=            if (mShouldFade) {
+                 frac = mPanelExpandedFractionSum; // don't judge me
+                 // let's start this 20% of the way down the screen
+                 frac = frac * 1.2f - 0.2f;
+-- 
+1.9.1
+

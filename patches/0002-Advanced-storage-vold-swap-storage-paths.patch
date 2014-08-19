@@ -1,0 +1,345 @@
+From 038a541399e4fdc372186122d9a997fdfc937566 Mon Sep 17 00:00:00 2001
+From: Matt Mower <mowerm@gmail.com>
+Date: Fri, 27 Dec 2013 23:31:41 -0600
+Subject: [PATCH 2/4] Advanced storage: vold swap storage paths
+
+Advanced storage settings patch series:
+[1/4] vold: allow swapped storage paths at vold init
+      http://review.cyanogenmod.org/56515
+[2/4] Advanced storage: vold swap storage paths
+      http://review.cyanogenmod.org/56516
+[3/4] storage: allow swapping primary storage for apps
+      http://review.cyanogenmod.org/56950
+[4/4] Advanced storage: swap primary storage for apps
+      http://review.cyanogenmod.org/56951
+
+This adds an "Advanced storage settings" menu item under Settings >
+Storage with a new option "Swap vold primary storage". Enabling this
+option remaps primary storage to secondary and vice versa when vold
+initializes.
+
+The implementation is a hybrid of David Hacker's "Add setting for Vold
+Switchable Pair (2/2)" [http://review.cyanogenmod.org/48390] and Ricardo
+Cerqueira's "Storage: Allow user to choose internal storage"
+[http://review.cyanogenmod.org/12858].
+
+Change-Id: I9461b65a8d3afb51c3dbe706687b81bd5f8c920c
+
+Conflicts:
+	res/values/cm_strings.xml
+
+Conflicts:
+	res/values/cm_strings.xml
+---
+ res/menu/storage.xml                               |   3 +
+ res/values/cm_strings.xml                          |  29 ++++
+ res/xml/advanced_storage_settings.xml              |  28 ++++
+ .../deviceinfo/AdvancedStorageSettings.java        | 165 +++++++++++++++++++++
+ src/com/android/settings/deviceinfo/Memory.java    |  18 +++
+ 5 files changed, 243 insertions(+)
+ create mode 100644 res/xml/advanced_storage_settings.xml
+ create mode 100644 src/com/android/settings/deviceinfo/AdvancedStorageSettings.java
+
+diff --git a/res/menu/storage.xml b/res/menu/storage.xml
+index 2e4c660..8d90844 100644
+--- a/res/menu/storage.xml
++++ b/res/menu/storage.xml
+@@ -18,4 +18,7 @@
+     <item
+         android:id="@+id/storage_usb"
+         android:title="@string/storage_menu_usb" />
++    <item
++        android:id="@+id/storage_advanced"
++        android:title="@string/storage_menu_advanced" />
+ </menu>
+diff --git a/res/values/cm_strings.xml b/res/values/cm_strings.xml
+index da5ea49..d6ad376 100644
+--- a/res/values/cm_strings.xml
++++ b/res/values/cm_strings.xml
+@@ -295,6 +295,35 @@ two in order to insert additional control points. \'Remove\' deletes the selecte
+     <!-- GPS download data over wi-fi only -->
+     <string name="gps_download_data_wifi_only">Download GPS assisted data only over Wi-Fi networks</string>
+ 
++    <!-- Battery Info screen. Units shown after a value.  Used for diagnostic info screens, precise translation isn't needed -->
++    <string name="battery_info_status_charging_dock_ac">(DockAC)</string>
++    <!-- Battery Info screen. Units shown after a value.  Used for diagnostic info screens, precise translation isn't needed -->
++    <string name="battery_info_status_charging_dock_usb">(DockUSB)</string>
++
++    <!-- Menu label for reset the battery stats -->
++    <string name="menu_stats_reset">Reset</string>
++
++    <!-- CM Legal -->
++    <string name="cmlicense_title">CyanogenMod legal</string>
++    <string name="settings_cmlicense_activity_title">CyanogenMod legal</string>
++    <string name="settings_cmlicense_activity_unreachable">You don\'t have a data connection. To view this information now, go to %s from any computer connected to the Internet.</string>
++
++    <!-- Advanced storage settings-->
++    <string name="storage_title_advanced">Advanced storage settings</string>
++    <string name="storage_menu_advanced">Advanced storage settings</string>
++    <string name="as_primary_storage_category">Primary storage</string>
++    <string name="as_sys_swap_title">Swap system vold primary</string>
++    <string name="as_sys_swap_summary">Change primary storage by swapping sdcard0 and sdcard1 during vold initialization</string>
++    <string name="as_swap_unavailable">No suitable storage pair was found for primary swap</string>
++    <string name="as_swap_reboot_prompt_title">Reboot required</string>
++    <string name="as_swap_reboot_prompt_message">In order to apply the new storage configuration, a reboot is required.\n\nDo you want to reboot now?</string>
++
++    <!-- Donate -->
++    <string name="display_donate_options_title">DONATE</string>
++    <string name="donate_tonyp_title">Donate</string>
++    <string name="donate_tonyp_summary">If you like my work consider to show your support by donating</string>
++    <string name="donate_link" formatted="false">https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick\u0026hosted_button_id=RL7NJSUDNQNZU</string>
++
+     <!-- Stylus Icon -->
+     <string name="stylus_icon_enabled_title">Show icon when using stylus</string>
+     <string name="stylus_icon_enabled_summary">Show the pointer icon when hovering or drawing with the stylus</string>
+diff --git a/res/xml/advanced_storage_settings.xml b/res/xml/advanced_storage_settings.xml
+new file mode 100644
+index 0000000..19eb015
+--- /dev/null
++++ b/res/xml/advanced_storage_settings.xml
+@@ -0,0 +1,28 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Copyright (C) 2013 The CyanogenMod Project
++
++     Licensed under the Apache License, Version 2.0 (the "License");
++     you may not use this file except in compliance with the License.
++     You may obtain a copy of the License at
++
++          http://www.apache.org/licenses/LICENSE-2.0
++
++     Unless required by applicable law or agreed to in writing, software
++     distributed under the License is distributed on an "AS IS" BASIS,
++     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++     See the License for the specific language governing permissions and
++     limitations under the License.
++-->
++
++<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
++        android:title="@string/location_settings_title">
++
++    <PreferenceCategory
++        android:title="@string/as_primary_storage_category" />
++
++    <CheckBoxPreference
++        android:key="as_sys_swap"
++        android:title="@string/as_sys_swap_title"
++        android:summary="@string/as_sys_swap_summary" />
++
++</PreferenceScreen>
+diff --git a/src/com/android/settings/deviceinfo/AdvancedStorageSettings.java b/src/com/android/settings/deviceinfo/AdvancedStorageSettings.java
+new file mode 100644
+index 0000000..4735276
+--- /dev/null
++++ b/src/com/android/settings/deviceinfo/AdvancedStorageSettings.java
+@@ -0,0 +1,165 @@
++/*
++ * Copyright (C) 2013 The CyanogenMod Project
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package com.android.settings.deviceinfo;
++
++import android.app.AlertDialog;
++import android.app.Dialog;
++import android.app.DialogFragment;
++import android.content.BroadcastReceiver;
++import android.content.Context;
++import android.content.DialogInterface;
++import android.content.Intent;
++import android.content.IntentFilter;
++import android.os.Bundle;
++import android.os.Environment;
++import android.os.PowerManager;
++import android.os.SystemProperties;
++import android.os.UserManager;
++import android.preference.CheckBoxPreference;
++import android.preference.Preference;
++import android.preference.PreferenceScreen;
++import android.text.TextUtils;
++import android.util.Log;
++
++import com.android.settings.R;
++import com.android.settings.SettingsPreferenceFragment;
++import com.android.settings.Utils;
++
++import java.io.File;
++
++/**
++ * Advanced storage settings.
++ */
++public class AdvancedStorageSettings extends SettingsPreferenceFragment {
++
++    private static final String TAG = "AdvancedStorageSettings";
++
++    private static final String KEY_SYS_SWAP = "as_sys_swap";
++    private static final String SYSVOLD_SWITCH_PERSIST_PROP = "persist.sys.vold.switchexternal";
++    private static final String VOLD_SWITCHABLEPAIR_PROP = "persist.sys.vold.switchablepair";
++    private static boolean mSwitchablePairFound = false;
++    private CheckBoxPreference mSysSwap;
++
++    private PreferenceScreen createPreferenceHierarchy() {
++        PreferenceScreen root = getPreferenceScreen();
++        if (root != null) {
++            root.removeAll();
++        }
++        addPreferencesFromResource(R.xml.advanced_storage_settings);
++        root = getPreferenceScreen();
++
++        mSysSwap = (CheckBoxPreference)root.findPreference(KEY_SYS_SWAP);
++        updateToggles();
++
++        return root;
++    }
++
++    @Override
++    public void onCreate(Bundle icicle) {
++        super.onCreate(icicle);
++        mSwitchablePairFound = setSwitchablePair();
++    }
++
++    @Override
++    public void onPause() {
++        super.onPause();
++    }
++
++    @Override
++    public void onResume() {
++        super.onResume();
++        createPreferenceHierarchy();
++    }
++
++    private boolean setSwitchablePair() {
++        String[] primaryPath = System.getenv("EXTERNAL_STORAGE").split(File.separator);
++        String[] secondaryPath = System.getenv("SECONDARY_STORAGE").split(File.separator);
++        String primaryDir = primaryPath[primaryPath.length-1];
++        String secondaryDir = secondaryPath[secondaryPath.length-1];
++
++        if (TextUtils.isEmpty(primaryDir)) {
++            Log.e(TAG,"Unable to find primary storage device for vold swap");
++            return false;
++        }
++        if (Environment.isExternalStorageEmulated()) {
++            Log.e(TAG,"Vold swap does not support emulated primary storage");
++            return false;
++        }
++        if (!TextUtils.equals(secondaryDir, "sdcard1")) {
++            Log.e(TAG,"Unable to find secondary storage device sdcard1 for vold swap");
++            return false;
++        }
++
++        SystemProperties.set(VOLD_SWITCHABLEPAIR_PROP, primaryDir + ','
++            + secondaryDir);
++        Log.i(TAG, "System property set: " + VOLD_SWITCHABLEPAIR_PROP + "="
++            + primaryDir + ',' + secondaryDir);
++        return true;
++    }
++
++    private void updateToggles() {
++        if (mSwitchablePairFound) {
++            if(SystemProperties.get(SYSVOLD_SWITCH_PERSIST_PROP).equals("1")) {
++                mSysSwap.setChecked(true);
++            } else {
++                mSysSwap.setChecked(false);
++            }
++            mSysSwap.setEnabled(true);
++        } else {
++            mSysSwap.setChecked(false);
++            mSysSwap.setSummary(R.string.as_swap_unavailable);
++            mSysSwap.setEnabled(false);
++        }
++    }
++
++    private void showRebootPrompt() {
++        AlertDialog dialog = new AlertDialog.Builder(getActivity())
++                .setTitle(R.string.as_swap_reboot_prompt_title)
++                .setMessage(R.string.as_swap_reboot_prompt_message)
++                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
++                    @Override
++                    public void onClick(DialogInterface dialog, int which) {
++                        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
++                        pm.reboot(null);
++                    }
++                })
++                .setNegativeButton(R.string.no, null)
++                .create();
++
++        dialog.show();
++    }
++
++    @Override
++    public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
++
++        // Don't allow any changes to take effect as the USB host will be disconnected, killing
++        // the monkeys
++        if (Utils.isMonkeyRunning()) {
++            return true;
++        }
++
++        if (preference == mSysSwap) {
++            SystemProperties.set(SYSVOLD_SWITCH_PERSIST_PROP,
++                mSysSwap.isChecked() ? "1" : "0");
++            Log.i(TAG, "System property set: " + SYSVOLD_SWITCH_PERSIST_PROP
++                  + "=" + SystemProperties.get(SYSVOLD_SWITCH_PERSIST_PROP));
++        }
++        updateToggles();
++        showRebootPrompt();
++        return true;
++    }
++}
+diff --git a/src/com/android/settings/deviceinfo/Memory.java b/src/com/android/settings/deviceinfo/Memory.java
+index 52fef32..61c8af7 100644
+--- a/src/com/android/settings/deviceinfo/Memory.java
++++ b/src/com/android/settings/deviceinfo/Memory.java
+@@ -42,6 +42,7 @@ import android.os.storage.StorageVolume;
+ import android.preference.Preference;
+ import android.preference.PreferenceActivity;
+ import android.preference.PreferenceScreen;
++import android.text.TextUtils;
+ import android.util.Log;
+ import android.view.Menu;
+ import android.view.MenuInflater;
+@@ -179,6 +180,12 @@ public class Memory extends SettingsPreferenceFragment {
+         UserManager um = (UserManager)getActivity().getSystemService(Context.USER_SERVICE);
+         boolean usbItemVisible = !um.hasUserRestriction(UserManager.DISALLOW_USB_FILE_TRANSFER);
+         usb.setVisible(usbItemVisible);
++
++        final MenuItem advStorage = menu.findItem(R.id.storage_advanced);
++        String secondaryPath = System.getenv("SECONDARY_STORAGE");
++        boolean advStorageItemVisibleSec = TextUtils.equals(secondaryPath, "/storage/sdcard1");
++        boolean advStorageItemVisibleEmu = !Environment.isExternalStorageEmulated();
++        advStorage.setVisible(advStorageItemVisibleSec && advStorageItemVisibleEmu);
+     }
+ 
+     @Override
+@@ -195,6 +202,17 @@ public class Memory extends SettingsPreferenceFragment {
+                     startFragment(this, UsbSettings.class.getCanonicalName(), -1, null);
+                 }
+                 return true;
++            case R.id.storage_advanced:
++                if (getActivity() instanceof PreferenceActivity) {
++                    ((PreferenceActivity) getActivity()).startPreferencePanel(
++                            AdvancedStorageSettings.class.getCanonicalName(),
++                            null,
++                            R.string.storage_title_advanced, null,
++                            this, 0);
++                } else {
++                    startFragment(this, AdvancedStorageSettings.class.getCanonicalName(), -1, null);
++                }
++                return true;
+         }
+         return super.onOptionsItemSelected(item);
+     }
+-- 
+1.9.1
+
