@@ -17,11 +17,12 @@
 add_lunch_combo cm_p990-userdebug
 
 echo -n "vold patch"
-cd $DIR/system/vold/; git fetch https://github.com/tonyp/android_system_vold.git && git cherry-pick beca52efd9901d63244b1985b539cd96c92cc7b5
-cd $DIR/packages/apps/Settings/; git fetch https://github.com/Puri12/android_packages_apps_Settings.git && git cherry-pick 876c2528b9cb989589fe826efefde272ce4644d5
-cd $DIR/packages/apps/Settings/; git fetch https://github.com/Puri12/android_packages_apps_Settings.git && git cherry-pick 038a541399e4fdc372186122d9a997fdfc937566
-cd $DIR/packages/apps/Settings/; git fetch https://github.com/Puri12/android_packages_apps_Settings.git && git cherry-pick df2ca540968b300aae0983cef697387429ec6711
-cd $DIR/packages/apps/Settings/; git fetch https://github.com/Puri12/android_packages_apps_Settings.git && git cherry-pick c7aabfcdfc5e4409200ab6559518cd959ebb00a9
+cd $DIR/system/vold/; git remote add tonyp https://github.com/tonyp/android_system_vold.git && git fetch tonyp && git cherry-pick beca52efd9901d63244b1985b539cd96c92cc7b5
+cd $DIR/packages/apps/Settings/; git remote add tonyp https://github.com/tonyp/tonyp_packages_apps_Settings.git && git fetch tonyp && git cherry-pick 74da0f5831fa71417f87e97ca6b68c74cb636279
+cd $DIR/packages/apps/Settings/; git remote add tonyp https://github.com/tonyp/tonyp_packages_apps_Settings.git && git fetch tonyp && git cherry-pick a7f0d7ab377dcc4d9724e87fd385a0d6259452cb
+cd $DIR/packages/apps/Settings/; git remote add tonyp https://github.com/tonyp/tonyp_packages_apps_Settings.git && git fetch tonyp && git cherry-pick 9de6ce15e7282b043b6e4ab85b094ba3fcf41cf0
+cd $DIR/packages/apps/Settings/; git remote add tonyp https://github.com/tonyp/tonyp_packages_apps_Settings.git && git fetch tonyp && git cherry-pick cda9a921fa126705b5c4926ac7fd28630e890211
+cd $DIR/packages/apps/Settings/; git remote add tonyp https://github.com/tonyp/tonyp_packages_apps_Settings.git && git fetch tonyp && git cherry-pick 51e218b962167bdac8749e00dd7dc1cc64834ef9
 
 cd $DIR/
 echo ""
@@ -143,4 +144,3 @@ else
 	(cd hardware/libhardware; git am --abort)
 	echo "     [FAIL]"
 fi
-
