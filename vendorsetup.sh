@@ -16,10 +16,14 @@
 
 add_lunch_combo cm_p990-userdebug
 
-echo -n "Prepare for gcc4.8"
+echo -n "vold patch"
 cd $DIR/system/vold/; git fetch https://github.com/tonyp/android_system_vold.git && git cherry-pick beca52efd9901d63244b1985b539cd96c92cc7b5
+cd $DIR/packages/apps/Settings/; git fetch https://github.com/Puri12/android_packages_apps_Settings.git && git cherry-pick 876c2528b9cb989589fe826efefde272ce4644d5
+cd $DIR/packages/apps/Settings/; git fetch https://github.com/Puri12/android_packages_apps_Settings.git && git cherry-pick 038a541399e4fdc372186122d9a997fdfc937566
+cd $DIR/packages/apps/Settings/; git fetch https://github.com/Puri12/android_packages_apps_Settings.git && git cherry-pick df2ca540968b300aae0983cef697387429ec6711
+cd $DIR/packages/apps/Settings/; git fetch https://github.com/Puri12/android_packages_apps_Settings.git && git cherry-pick c7aabfcdfc5e4409200ab6559518cd959ebb00a9
 
-
+cd $DIR/
 echo ""
 echo "Applying patches for P990"
 echo ""
@@ -93,43 +97,6 @@ fi
 echo "Apply patch to packages/apps/Settings"
 echo -n "Apply patch 0001-add-persist.sys.tonyp_mem_mgmt-settings.patch"
 (cd packages/apps/Settings; git am ../../device/lge/p990/patches/0001-add-persist.sys.tonyp_mem_mgmt-settings.patch) > /dev/null 2>&1
-if [ $? == 0 ]; then
-	echo "     [DONE]"
-else
-	(cd packages/apps/Settings; git am --abort)
-	echo "     [FAIL]"
-fi
-
-echo "Apply patch to packages/apps/Settings"
-echo -n "Apply patch 0001-add-persist.sys.tonyp_mem_mgmt-settings.patch"
-(cd packages/apps/Settings; git am ../../device/lge/p990/patches/0001-add-persist.sys.tonyp_mem_mgmt-settings.patch) > /dev/null 2>&1
-if [ $? == 0 ]; then
-	echo "     [DONE]"
-else
-	(cd packages/apps/Settings; git am --abort)
-	echo "     [FAIL]"
-fi
-
-echo -n "Apply patch 0002-Advanced-storage-vold-swap-storage-paths.patch"
-(cd packages/apps/Settings; git am ../../device/lge/p990/patches/0002-Advanced-storage-vold-swap-storage-paths.patch) > /dev/null 2>&1
-if [ $? == 0 ]; then
-	echo "     [DONE]"
-else
-	(cd packages/apps/Settings; git am --abort)
-	echo "     [FAIL]"
-fi
-
-echo -n "Apply patch 0003-Advanced-storage-swap-primary-storage-for-apps.patch"
-(cd packages/apps/Settings; git am ../../device/lge/p990/patches/0003-Advanced-storage-swap-primary-storage-for-apps.patch) > /dev/null 2>&1
-if [ $? == 0 ]; then
-	echo "     [DONE]"
-else
-	(cd packages/apps/Settings; git am --abort)
-	echo "     [FAIL]"
-fi
-
-echo -n "Apply patch 0004-Option-to-enforce-status-navigation-bar-transparency.patch"
-(cd packages/apps/Settings; git am ../../device/lge/p990/patches/0004-Option-to-enforce-status-navigation-bar-transparency.patch) > /dev/null 2>&1
 if [ $? == 0 ]; then
 	echo "     [DONE]"
 else
