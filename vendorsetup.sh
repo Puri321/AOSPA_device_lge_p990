@@ -16,6 +16,10 @@
 
 add_lunch_combo cm_p990-userdebug
 
+echo -n "Prepare for gcc4.8"
+cd $DIR/system/vold/; git fetch https://github.com/tonyp/android_system_vold.git && git cherry-pick beca52efd9901d63244b1985b539cd96c92cc7b5
+
+
 echo ""
 echo "Applying patches for P990"
 echo ""
