@@ -19,7 +19,7 @@ add_lunch_combo cm_p990-userdebug
 echo -n "Apply cherry-pick to system/vold"
 cd $DIR/system/vold/; git remote add tonyp https://github.com/tonyp/android_system_vold.git && git fetch tonyp && git cherry-pick beca52efd9901d63244b1985b539cd96c92cc7b5
 echo -n "Apply cherry-pick to packages/apps/Settings"
-cd $DIR/packages/apps/Settings/; git remote add Puri321 https://github.com/Puri321/android_packages_apps_Settings.git && git fetch Puri321 && git cherry-pick cfe216f64863e0768da07134525e79f987eb5031 && git cherry-pick e60877072808a1fea247c61053837d91ec4e03d1 && git cherry-pick 818a108183534f7a0b0f5828bbe999d09416013d && git cherry-pick bded42477f6da825212feeec5b462e20da1c27e0 && git cherry-pick abe0b029b8cadd4e75899b5f199fd76c4b22b474
+cd $DIR/packages/apps/Settings/; git remote add Puri321 https://github.com/Puri321/android_packages_apps_Settings.git && git fetch Puri321 && git cherry-pick cfe216f64863e0768da07134525e79f987eb5031 && git cherry-pick e60877072808a1fea247c61053837d91ec4e03d1 && git cherry-pick 818a108183534f7a0b0f5828bbe999d09416013d && git cherry-pick bded42477f6da825212feeec5b462e20da1c27e0 && git cherry-pick abe0b029b8cadd4e75899b5f199fd76c4b22b474 && git cherry-pick da08604181f6b82d36841bc9076c1d3a032ee6fc
 echo -n "Apply cherry-pick to system/vold"
 cd $DIR/frameworks/base/; git remote add Puri321 https://github.com/Puri321/android_frameworks_base.git && git fetch Puri321 && git cherry-pick 7f45330424da317d86efebf82a8625734ff5b572 && git cherry-pick 4f5c5a244c0a29a3833b8a2bb90fa875af1c8447 && git cherry-pick bcf9f1e4aa8155177abc1e56cb213bf4d6da6466
 
