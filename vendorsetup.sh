@@ -19,10 +19,10 @@ add_lunch_combo cm_p990-userdebug
 echo -n "vold patch"
 cd $DIR/system/vold/; git remote add tonyp https://github.com/tonyp/android_system_vold.git && git fetch tonyp && git cherry-pick beca52efd9901d63244b1985b539cd96c92cc7b5
 cd $DIR/packages/apps/Settings/; git remote add tonyp https://github.com/tonyp/tonyp_packages_apps_Settings.git && git fetch tonyp && git cherry-pick 74da0f5831fa71417f87e97ca6b68c74cb636279
-cd $DIR/packages/apps/Settings/; git remote add tonyp https://github.com/tonyp/tonyp_packages_apps_Settings.git && git fetch tonyp && git cherry-pick a7f0d7ab377dcc4d9724e87fd385a0d6259452cb
-cd $DIR/packages/apps/Settings/; git remote add tonyp https://github.com/tonyp/tonyp_packages_apps_Settings.git && git fetch tonyp && git cherry-pick 9de6ce15e7282b043b6e4ab85b094ba3fcf41cf0
-cd $DIR/packages/apps/Settings/; git remote add tonyp https://github.com/tonyp/tonyp_packages_apps_Settings.git && git fetch tonyp && git cherry-pick cda9a921fa126705b5c4926ac7fd28630e890211
-cd $DIR/packages/apps/Settings/; git remote add tonyp https://github.com/tonyp/tonyp_packages_apps_Settings.git && git fetch tonyp && git cherry-pick 51e218b962167bdac8749e00dd7dc1cc64834ef9
+cd $DIR/packages/apps/Settings/; git cherry-pick a7f0d7ab377dcc4d9724e87fd385a0d6259452cb
+cd $DIR/packages/apps/Settings/; git cherry-pick 9de6ce15e7282b043b6e4ab85b094ba3fcf41cf0
+cd $DIR/packages/apps/Settings/; git cherry-pick cda9a921fa126705b5c4926ac7fd28630e890211
+cd $DIR/packages/apps/Settings/; git cherry-pick 51e218b962167bdac8749e00dd7dc1cc64834ef9
 
 cd $DIR/
 echo ""
