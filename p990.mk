@@ -58,6 +58,15 @@ PRODUCT_PROPERTY_OVERRIDES += \
     debug.sf.electron_frames=42 \
     ro.lge.audio_soundexception=true
 
+# force transparent statusbar
+PRODUCT_PROPERTY_OVERRIDES += \
+    persist.sys.force_transbar=true
+
+# enable storage swapping
+PRODUCT_PROPERTY_OVERRIDES += \
+    persist.sys.vold.switchexternal=1 \
+    persist.sys.vold.switchablepair=sdcard0,sdcard1
+
 # Graphic glitches fix
 PRODUCT_PROPERTY_OVERRIDES += \
    debug.hwui.render_dirty_regions=false
@@ -173,6 +182,8 @@ LOCAL_KERNEL := device/lge/p990/kernel/zImage
 PRODUCT_COPY_FILES += \
     $(LOCAL_KERNEL):kernel \
     $(LOCAL_PATH)/kernel/bthid.ko:system/lib/modules/bthid.ko \
+    $(LOCAL_PATH)/kernel/scsi_wait_scan.ko:system/lib/modules/scsi_wait_scan.ko \
+    $(LOCAL_PATH)/kernel/wireless.ko:system/lib/modules/wireless.ko \
     $(LOCAL_PATH)/kernel/zram.ko:system/lib/modules/zram.ko
 
 PRODUCT_COPY_FILES += \

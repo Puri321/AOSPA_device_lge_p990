@@ -1,0 +1,102 @@
+From 876c2528b9cb989589fe826efefde272ce4644d5 Mon Sep 17 00:00:00 2001
+From: tonyp <tonyptonyp@gmail.com>
+Date: Sat, 4 May 2013 17:20:21 +0200
+Subject: [PATCH 1/4] add persist.sys.tonyp_mem_mgmt settings
+
+Conflicts:
+	res/values/strings.xml
+
+Conflicts:
+	src/com/android/settings/cyanogenmod/MemoryManagement.java
+
+Conflicts:
+	src/com/android/settings/cyanogenmod/MemoryManagement.java
+
+Add missing strings
+---
+ res/values/cm_strings.xml                                  |  3 +++
+ res/xml/memory_management.xml                              |  5 +++++
+ src/com/android/settings/cyanogenmod/MemoryManagement.java | 14 +++++++++++++-
+ 3 files changed, 21 insertions(+), 1 deletion(-)
+
+diff --git a/res/values/cm_strings.xml b/res/values/cm_strings.xml
+index 2c8d6b6..da5ea49 100644
+--- a/res/values/cm_strings.xml
++++ b/res/values/cm_strings.xml
+@@ -183,6 +183,9 @@ two in order to insert additional control points. \'Remove\' deletes the selecte
+     <!-- Purgeable Assets -->
+     <string name="pref_purgeable_assets_title">Allow purging of assets</string>
+     <string name="pref_purgeable_assets_summary">Purging of bitmap memory assets allows the freeing of more RAM when needed (requires reboot)</string>
++    <!-- tonyp minfree -->
++    <string name="pref_tonyp_minfree_title">Memory optimizations</string>
++    <string name="pref_tonyp_minfree_summary">Free memory a bit more aggressively without messing with active apps (requires reboot)</string>
+ 
+     <!-- Performance Settings : 16bpp Alpha -->
+     <string name="pref_use_16bpp_alpha_title">16bit transparency</string>
+diff --git a/res/xml/memory_management.xml b/res/xml/memory_management.xml
+index f86f2c0..d4aea7f 100644
+--- a/res/xml/memory_management.xml
++++ b/res/xml/memory_management.xml
+@@ -25,6 +25,11 @@
+         android:summary="@string/pref_purgeable_assets_summary" />
+ 
+     <CheckBoxPreference
++        android:key="pref_tonyp_minfree"
++        android:title="@string/pref_tonyp_minfree_title"
++        android:summary="@string/pref_tonyp_minfree_summary" />
++
++    <CheckBoxPreference
+         android:key="pref_ksm"
+         android:title="@string/pref_ksm_title"
+         android:summary="@string/pref_ksm_summary" />
+diff --git a/src/com/android/settings/cyanogenmod/MemoryManagement.java b/src/com/android/settings/cyanogenmod/MemoryManagement.java
+index 7234e84..31cf122 100644
+--- a/src/com/android/settings/cyanogenmod/MemoryManagement.java
++++ b/src/com/android/settings/cyanogenmod/MemoryManagement.java
+@@ -36,9 +36,13 @@ public class MemoryManagement extends SettingsPreferenceFragment {
+     private static final String PURGEABLE_ASSETS_PREF = "pref_purgeable_assets";
+     private static final String PURGEABLE_ASSETS_PERSIST_PROP = "persist.sys.purgeable_assets";
+ 
++    private static final String TONYP_MINFREE_PREF = "pref_tonyp_minfree";
++    private static final String TONYP_MINFREE_PERSIST_PROP = "persist.sys.tonyp_mem_mgmt";
++    private static final String TONYP_MINFREE_DEFAULT = "false";
++
+     private CheckBoxPreference mPurgeableAssetsPref;
+     private CheckBoxPreference mKSMPref;
+-
++    private CheckBoxPreference mTonypMinfreePref;
+ 
+     @Override
+     public void onCreate(Bundle savedInstanceState) {
+@@ -52,6 +56,7 @@ public class MemoryManagement extends SettingsPreferenceFragment {
+ 
+             mPurgeableAssetsPref = (CheckBoxPreference) prefSet.findPreference(PURGEABLE_ASSETS_PREF);
+             mKSMPref = (CheckBoxPreference) prefSet.findPreference(KSM_PREF);
++            mTonypMinfreePref = (CheckBoxPreference) prefSet.findPreference(TONYP_MINFREE_PREF);
+ 
+             if (Utils.fileExists(KSM_RUN_FILE)) {
+                 mKSMPref.setChecked("1".equals(Utils.fileReadOneLine(KSM_RUN_FILE)));
+@@ -61,6 +66,8 @@ public class MemoryManagement extends SettingsPreferenceFragment {
+ 
+             String purgeableAssets = SystemProperties.get(PURGEABLE_ASSETS_PERSIST_PROP, "0");
+             mPurgeableAssetsPref.setChecked("1".equals(purgeableAssets));
++            String tonypMinfree = SystemProperties.get(TONYP_MINFREE_PERSIST_PROP, TONYP_MINFREE_DEFAULT);
++            mTonypMinfreePref.setChecked("true".equals(tonypMinfree));
+         }
+     }
+ 
+@@ -71,6 +78,11 @@ public class MemoryManagement extends SettingsPreferenceFragment {
+                     mPurgeableAssetsPref.isChecked() ? "1" : "0");
+             return true;
+         }
++        if (preference == mTonypMinfreePref) {
++            SystemProperties.set(TONYP_MINFREE_PERSIST_PROP, 
++                    mTonypMinfreePref.isChecked() ? "true" : "false");
++            return true;
++        }
+         if (preference == mKSMPref) {
+             Utils.fileWriteOneLine(KSM_RUN_FILE, mKSMPref.isChecked() ? "1" : "0");
+             return true;
+-- 
+1.9.1
+

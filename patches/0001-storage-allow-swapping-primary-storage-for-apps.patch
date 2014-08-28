@@ -1,0 +1,53 @@
+From 589af57c3ec686afb02f35b46eb9d8d037060f45 Mon Sep 17 00:00:00 2001
+From: Matt Mower <mowerm@gmail.com>
+Date: Sat, 4 Jan 2014 00:20:47 -0600
+Subject: [PATCH 1/2] storage: allow swapping primary storage for apps
+
+Advanced storage settings patch series:
+[1/4] vold: allow swapped storage paths at vold init
+      http://review.cyanogenmod.org/56515
+[2/4] Advanced storage: vold swap storage paths
+      http://review.cyanogenmod.org/56516
+[3/4] storage: allow swapping primary storage for apps
+      http://review.cyanogenmod.org/56950
+[4/4] Advanced storage: swap primary storage for apps
+      http://review.cyanogenmod.org/56951
+
+By setting the persistent system property
+ persist.sys.env.switchexternal=1
+the primary device for applications storage will be reported as
+/storage/sdcard1. This method currently only works with non-emulated
+storage. The path swapping will probably have to be relocated within
+getExternalStorage() and other functions emulated storage swap to work.
+
+Change-Id: Ie091eb632280c2dbfd00bbf5f9b0b09be0239234
+---
+ core/java/android/os/Environment.java | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/core/java/android/os/Environment.java b/core/java/android/os/Environment.java
+index a4e5fe0..d849e9f 100644
+--- a/core/java/android/os/Environment.java
++++ b/core/java/android/os/Environment.java
+@@ -171,6 +171,18 @@ public class Environment {
+ 
+             mExternalDirsForVold = externalForVold.toArray(new File[externalForVold.size()]);
+             mExternalDirsForApp = externalForApp.toArray(new File[externalForApp.size()]);
++
++            if (mExternalDirsForApp.length > 1 && SystemProperties
++                    .get("persist.sys.env.switchexternal").equals("1")) {
++                for (int i = 0; i < mExternalDirsForApp.length; i++) {
++                    if (TextUtils.equals(mExternalDirsForApp[i].getName(),
++                                "sdcard1") && i > 0) {
++                        File tempDirForSwap = mExternalDirsForApp[0];
++                        mExternalDirsForApp[0] = mExternalDirsForApp[i];
++                        mExternalDirsForApp[i] = tempDirForSwap;
++                    }
++                }
++            }
+         }
+ 
+         @Deprecated
+-- 
+1.9.1
+
